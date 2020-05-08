@@ -1,0 +1,16 @@
+server:
+  port: 8001
+
+
+
+# DataSource Config
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource      #当前数据源操作类型
+    driver-class-name: com.mysql.cj.jdbc.Driver      #mysql驱动包
+    url: jdbc:mysql://116.62.144.71:3306/poemj2ee?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+#    password: xiaoxiao
+    password: Zsd123456+
+  thymeleaf:
+    prefix: classpath:static/
