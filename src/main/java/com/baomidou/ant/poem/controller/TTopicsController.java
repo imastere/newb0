@@ -6,6 +6,7 @@ import com.baomidou.ant.poem.entity.TTopics;
 import com.baomidou.ant.poem.entity.TUserInfo;
 import com.baomidou.ant.poem.mapper.TTopicsMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,6 +60,18 @@ public class TTopicsController {
         queryWrapper.eq("owner",session.getAttribute("owner"));
         System.out.println("owner"+session.getAttribute("owner"));
         return tTopicsMapper.selectList(queryWrapper);
+    }
+
+
+    @PostMapping("/like_topic")
+    public Object likeTopic(String id){
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("id",id);
+        TTopics topic = tTopicsMapper.selectOne(queryWrapper);
+        topic.setLikenum(topic.getLikenum()+1);
+        tTopicsMapper.updateById(topic);
+        return "点赞成功";
+
     }
 
 

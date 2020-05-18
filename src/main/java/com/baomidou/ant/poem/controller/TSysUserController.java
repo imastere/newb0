@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,8 +81,13 @@ public class TSysUserController {
     }
 
     @PostMapping("/api/login/account")
-    public Object login(HttpSession session, @RequestBody Map<String, String> user, HttpServletResponse response) {
+    public Object login(HttpSession session, @RequestBody Map<String, String> user,HttpServletRequest request) {
+        Enumeration em = request.getSession().getAttributeNames();
+        while(em.hasMoreElements()){
+            request.getSession().removeAttribute(em.nextElement().toString());
+        }
         String username = user.get("userName");
+        System.out.println("username"+username);
         String password = user.get("password");
         String type = user.get("type");
         HashMap<Object, Object> map = new HashMap();
@@ -94,6 +100,7 @@ public class TSysUserController {
                 session.setAttribute("username",username);
                 session.setAttribute("power","admin");
                 session.setAttribute("userid",loginuser.getId());
+                System.out.println("userid"+loginuser.getId());
             }else if (loginuser.getStatus().equals(2)){
                 map.put("status", "ok");
                 map.put("type", "account");

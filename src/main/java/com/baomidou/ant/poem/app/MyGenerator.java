@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class MyGenerator {
+public class  MyGenerator {
         /**
          * <p>
          * 读取控制台内容
