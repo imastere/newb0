@@ -7,18 +7,14 @@ import com.baomidou.ant.poem.entity.TTopics;
 import com.baomidou.ant.poem.mapper.TTopicOperateMapper;
 import com.baomidou.ant.poem.mapper.TTopicsMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.websocket.server.PathParam;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * <p>
@@ -37,6 +33,8 @@ public class TTopicOperateController {
     TTopicOperateMapper tTopicOperateMapper;
 
 
+
+    //
     @GetMapping("/getTimeAxisList")
     public Object getmyTopicList(HttpServletRequest request) {
         String user = request.getParameter("user");
@@ -79,6 +77,28 @@ public class TTopicOperateController {
         return map;
     }
 
+
+    //点赞
+    @PostMapping("/like_topic")
+    public Object likeTopic( @RequestBody Map<String, String> map){
+        String topicid = map.get("topic_id");
+        String username = map.get("username");
+
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("id",topicid);
+        TTopics topic = tTopicsMapper.selectOne(queryWrapper);
+        topic.setLikenum(topic.getLikenum()+1);
+        tTopicsMapper.updateById(topic);
+
+        TTopicOperate operate = new TTopicOperate();
+        operate.setOperate(0);
+        operate.setUser(username);
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+        operate.setCreattime(df.format(new Date()));
+        tTopicOperateMapper.insert(operate);
+        return "点赞成功";
+
+    }
 
 
 

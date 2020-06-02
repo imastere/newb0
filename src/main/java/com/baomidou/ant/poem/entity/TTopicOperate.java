@@ -30,7 +30,7 @@ package com.baomidou.ant.poem.entity;
 
     private Integer topicid;
 
-    private Timestamp creattime;
+    private String creattime;
 
 
 }

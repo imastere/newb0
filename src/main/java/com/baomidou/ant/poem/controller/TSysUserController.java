@@ -7,6 +7,7 @@ import com.baomidou.ant.poem.entity.TPoemsPoem;
 import com.baomidou.ant.poem.entity.TSysUser;
 import com.baomidou.ant.poem.mapper.TSysUserMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +33,7 @@ import java.util.Map;
 public class TSysUserController {
     @Resource
     TSysUserMapper tSysUserMapper;
+    ResultInfo resultInfo = new  ResultInfo();
 
     //    @CrossOrigin(origins = "http://localhost:8000")
     @PostMapping("/userlogin")
@@ -39,7 +41,6 @@ public class TSysUserController {
         String username = tSysUser.getUsername();
         String password = tSysUser.getPassword();
         System.out.println(username + "**" + password);
-        ResultInfo resultInfo = new ResultInfo();
         TSysUser user = tSysUserMapper.selectByUsername(username);
         if (user != null) {
             if (user.getPassword().equals(password)) {
@@ -59,26 +60,70 @@ public class TSysUserController {
 
     }
 
+//    @PostMapping("/register")
+//    public ResultInfo registerUser(TSysUser registeruser) {
+//        ResultInfo resultInfo = new ResultInfo();
+//        tSysUserMapper.insert(registeruser);
+//        resultInfo.setStatus(200);
+//        resultInfo.setMsg("登陆成功");
+//        resultInfo.setData(registeruser);
+//        return resultInfo;
+//    }
+
+    //注册
     @PostMapping("/register")
-    public ResultInfo registerUser(TSysUser registeruser) {
-        ResultInfo resultInfo = new ResultInfo();
-        tSysUserMapper.insert(registeruser);
+    public ResultInfo registerUser(@RequestBody Map<String, String> map) {
+        String email=map.get("email");
+        String account=map.get("account");
+        String password = map.get("password");
+        System.out.println(password);
+        TSysUser tSysUser = new TSysUser();
+        tSysUser.setEmail(email);
+        tSysUser.setUsername(account);
+        tSysUser.setPassword(password);
+        tSysUserMapper.insert(tSysUser);
         resultInfo.setStatus(200);
-        resultInfo.setMsg("登陆成功");
-        resultInfo.setData(registeruser);
+        resultInfo.setMsg("注册成功");
         return resultInfo;
     }
+
+    @PostMapping("/login")
+    public ResultInfo login(@RequestBody Map<String, String> map) {
+        String email=map.get("email");
+        String password = map.get("password");
+        TSysUser tSysUser = new TSysUser();
+        tSysUser.setEmail(email);
+        tSysUser.setPassword(password);
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("email",email);
+        queryWrapper.eq("password",password);
+        if (tSysUserMapper.selectOne(queryWrapper)!=null){
+            resultInfo.setStatus(200);
+            resultInfo.setMsg("登陆成功");
+            return resultInfo;
+        }else {
+            resultInfo.setStatus(400);
+            resultInfo.setMsg("登陆失败");
+            return resultInfo;
+        }
+
+    }
+
+
 
 
     @PutMapping("/update")
     public ResultInfo updateUser(TSysUser user) {
-        ResultInfo resultInfo = new ResultInfo();
         tSysUserMapper.updateById(user);
         resultInfo.setMsg("更新用户信息成功");
         resultInfo.setData(user);
         return resultInfo;
 
     }
+
+
+
+
 
     @PostMapping("/api/login/account")
     public Object login(HttpSession session, @RequestBody Map<String, String> user,HttpServletRequest request) {

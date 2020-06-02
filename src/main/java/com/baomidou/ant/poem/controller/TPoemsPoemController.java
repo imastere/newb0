@@ -79,7 +79,7 @@ public class TPoemsPoemController{
     public ResultInfo getPoemList(){
         resultInfo.setMsg("查询成功");
         resultInfo.setStatus(200);
-        Page<TPoemsPoem> page = new Page<>(1, 5);
+        Page<TPoemsPoem> page = new Page<>(1, 10);
         resultInfo.setData(tpoemsPoemMapper.selectPage(page,null).getRecords());
         return resultInfo;
 

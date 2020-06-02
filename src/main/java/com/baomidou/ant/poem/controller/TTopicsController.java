@@ -29,6 +29,8 @@ public class TTopicsController {
     @Resource
     TTopicsMapper tTopicsMapper ;
 
+
+
     @GetMapping("/api/fake_list")
     public Object getTopicList(HttpServletRequest request){
 
@@ -63,16 +65,7 @@ public class TTopicsController {
     }
 
 
-    @PostMapping("/like_topic")
-    public Object likeTopic(String id){
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("id",id);
-        TTopics topic = tTopicsMapper.selectOne(queryWrapper);
-        topic.setLikenum(topic.getLikenum()+1);
-        tTopicsMapper.updateById(topic);
-        return "点赞成功";
 
-    }
 
 
 
