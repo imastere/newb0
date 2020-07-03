@@ -2,7 +2,7 @@
 //
 //import com.baomidou.ant.poem.entity.ResultInfo;
 //import com.baomidou.ant.poem.entity.TSysUser;
-//import org.springframework.stereotype.Controller;
+//import org.springframework.stereotype.TestExceptionController;
 //import org.springframework.web.bind.annotation.GetMapping;
 //import org.springframework.web.bind.annotation.PostMapping;
 //import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +25,7 @@
 //     * @description 拦截Ant Design Pro访问路径
 //     * @date 2019/5/24
 //     */
-//    @Controller
+//    @TestExceptionController
 //    public class AntDesignController {
 //        /**
 //         * 配置url通配符，拦截多个地址

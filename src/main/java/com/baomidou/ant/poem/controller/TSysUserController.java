@@ -9,6 +9,9 @@ import com.baomidou.ant.poem.mapper.TSysUserMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -20,6 +23,8 @@ import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -29,53 +34,47 @@ import java.util.Map;
  * @author jobob
  * @since 2020-04-21
  */
+
 @RestController
+@Slf4j
 public class TSysUserController {
     @Resource
     TSysUserMapper tSysUserMapper;
-    ResultInfo resultInfo = new  ResultInfo();
+    ResultInfo resultInfo = new ResultInfo();
+    Logger logger = LoggerFactory.getLogger(TSysUserController.class);
 
     //    @CrossOrigin(origins = "http://localhost:8000")
     @PostMapping("/userlogin")
-    public ResultInfo loginUser(@RequestBody TSysUser tSysUser) {
-        String username = tSysUser.getUsername();
-        String password = tSysUser.getPassword();
-        System.out.println(username + "**" + password);
+    public ResultInfo loginUser(HttpServletRequest request) {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
         TSysUser user = tSysUserMapper.selectByUsername(username);
         if (user != null) {
             if (user.getPassword().equals(password)) {
                 resultInfo.setStatus(200);
+                logger.info(username+"登陆");
                 resultInfo.setMsg("欢迎" + username + "登陆");
                 resultInfo.setData(user);
             } else {
                 resultInfo.setStatus(400);
-                resultInfo.setMsg("登陆请校验输入的是否正确");
+                resultInfo.setMsg("登陆失败请校验输入的是否正确");
             }
         } else {
             resultInfo.setStatus(400);
-            resultInfo.setMsg("登陆请校验输入的是否正确");
+            resultInfo.setMsg("登陆失败请校验输入的是否正确");
         }
         System.out.println(username + "登陆");
         return resultInfo;
 
     }
 
-//    @PostMapping("/register")
-//    public ResultInfo registerUser(TSysUser registeruser) {
-//        ResultInfo resultInfo = new ResultInfo();
-//        tSysUserMapper.insert(registeruser);
-//        resultInfo.setStatus(200);
-//        resultInfo.setMsg("登陆成功");
-//        resultInfo.setData(registeruser);
-//        return resultInfo;
-//    }
 
     //注册
     @PostMapping("/register")
-    public ResultInfo registerUser(@RequestBody Map<String, String> map) {
-        String email=map.get("email");
-        String account=map.get("account");
-        String password = map.get("password");
+    public ResultInfo registerUser(HttpServletRequest request) {
+        String email = request.getParameter("email");
+        String account = request.getParameter("account");
+        String password = request.getParameter("password");
         System.out.println(password);
         TSysUser tSysUser = new TSysUser();
         tSysUser.setEmail(email);
@@ -84,32 +83,31 @@ public class TSysUserController {
         tSysUserMapper.insert(tSysUser);
         resultInfo.setStatus(200);
         resultInfo.setMsg("注册成功");
+        logger.info(account+"注册 ");
         return resultInfo;
     }
 
     @PostMapping("/login")
     public ResultInfo login(@RequestBody Map<String, String> map) {
-        String email=map.get("email");
+        String email = map.get("email");
         String password = map.get("password");
         TSysUser tSysUser = new TSysUser();
         tSysUser.setEmail(email);
         tSysUser.setPassword(password);
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("email",email);
-        queryWrapper.eq("password",password);
-        if (tSysUserMapper.selectOne(queryWrapper)!=null){
+        queryWrapper.eq("email", email);
+        queryWrapper.eq("password", password);
+        if (tSysUserMapper.selectOne(queryWrapper) != null) {
             resultInfo.setStatus(200);
             resultInfo.setMsg("登陆成功");
             return resultInfo;
-        }else {
+        } else {
             resultInfo.setStatus(400);
             resultInfo.setMsg("登陆失败");
             return resultInfo;
         }
 
     }
-
-
 
 
     @PutMapping("/update")
@@ -122,36 +120,38 @@ public class TSysUserController {
     }
 
 
-
-
-
     @PostMapping("/api/login/account")
-    public Object login(HttpSession session, @RequestBody Map<String, String> user,HttpServletRequest request) {
+    public Object login(HttpSession session, @RequestBody Map<String, String> user, HttpServletRequest request) {
         Enumeration em = request.getSession().getAttributeNames();
-        while(em.hasMoreElements()){
+        while (em.hasMoreElements()) {
             request.getSession().removeAttribute(em.nextElement().toString());
         }
         String username = user.get("userName");
-        System.out.println("username"+username);
         String password = user.get("password");
+        System.out.println("username:"+username);
         String type = user.get("type");
         HashMap<Object, Object> map = new HashMap();
         TSysUser loginuser = tSysUserMapper.selectByUsername(username);
-        if (loginuser.getPassword().equals(password)) {
-            if (loginuser.getStatus().equals(1)){
-                map.put("status", "ok");
+        if (loginuser!=null) {
+            if (loginuser.getPassword().equals(password)) {
+                if (loginuser.getStatus().equals(1)) {
+                    map.put("status", "ok");
+                    map.put("type", "account");
+                    map.put("currentAuthority", "admin");
+                    session.setAttribute("username", username);
+                    session.setAttribute("power", "admin");
+                    session.setAttribute("userid", loginuser.getId());
+                } else if (loginuser.getStatus().equals(2)) {
+                    map.put("status", "ok");
+                    map.put("type", "account");
+                    map.put("currentAuthority", "user");
+                    session.setAttribute("power", "user");
+                    session.setAttribute("username", username);
+                }
+            } else {
+                map.put("status", "error");
                 map.put("type", "account");
-                map.put("currentAuthority", "admin");
-                session.setAttribute("username",username);
-                session.setAttribute("power","admin");
-                session.setAttribute("userid",loginuser.getId());
-                System.out.println("userid"+loginuser.getId());
-            }else if (loginuser.getStatus().equals(2)){
-                map.put("status", "ok");
-                map.put("type", "account");
-                map.put("currentAuthority", "user");
-                session.setAttribute("power","user");
-                session.setAttribute("username",username);
+                map.put("currentAuthority", "guest");
             }
         }else {
             map.put("status", "error");
@@ -160,8 +160,6 @@ public class TSysUserController {
         }
         return map;
     }
-
-
 
 
     @GetMapping("/api/login/outLogin")
@@ -216,7 +214,7 @@ public class TSysUserController {
     }
 
     @GetMapping("/api/query/user")
-    public Object getBooks(HttpSession session,HttpServletRequest request) throws UnsupportedEncodingException {
+    public Object getBooks(HttpSession session, HttpServletRequest request) throws UnsupportedEncodingException {
         int pageSize = Integer.parseInt(request.getParameter("pageSize"));
         int current = Integer.parseInt(request.getParameter("current"));
 
@@ -224,7 +222,6 @@ public class TSysUserController {
         if (session.getAttribute("power").equals("admin")) {
             if (request.getParameter("username") == null && request.getParameter("email") == null) {
                 tSysUserMapper.selectPage(page, null);
-
             } else if (request.getParameter("username") != null && request.getParameter("email") == null) {
                 String name = URLDecoder.decode(request.getParameter("username"), "GBK");
                 QueryWrapper queryWrapper = new QueryWrapper();
@@ -249,49 +246,48 @@ public class TSysUserController {
             map.put("pageSize", pageSize);
             map.put("current", current);
             return map;
-        }else
+        } else
             return null;
     }
 
     @PostMapping("/api/giveadmin/user")
-    public Object giveAdmintoUser(HttpSession session, @RequestBody Map<String, String> reqmap){
+    public Object giveAdmintoUser(HttpSession session, @RequestBody Map<String, String> reqmap) {
         int id = Integer.parseInt(reqmap.get("id"));
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("id",id);
-        TSysUser tSysUser =  tSysUserMapper.selectOne(queryWrapper);
+        queryWrapper.eq("id", id);
+        TSysUser tSysUser = tSysUserMapper.selectOne(queryWrapper);
         tSysUser.setStatus(1);
         tSysUserMapper.updateById(tSysUser);
-        HashMap<String,String> resmap =  new HashMap<>();
-        resmap.put("message","ok");
+        HashMap<String, String> resmap = new HashMap<>();
+        resmap.put("message", "ok");
         return resmap;
     }
 
     @PostMapping("/api/setUserGeneral/user")
-    public Object setUserGeneral(HttpSession session, @RequestBody Map<String, String> reqmap){
+    public Object setUserGeneral(HttpSession session, @RequestBody Map<String, String> reqmap) {
         int id = Integer.parseInt(reqmap.get("id"));
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("id",id);
-        TSysUser tSysUser =  tSysUserMapper.selectOne(queryWrapper);
+        queryWrapper.eq("id", id);
+        TSysUser tSysUser = tSysUserMapper.selectOne(queryWrapper);
         tSysUser.setStatus(2);
         tSysUserMapper.updateById(tSysUser);
-        HashMap<String,String> resmap =  new HashMap<>();
-        resmap.put("message","ok");
+        HashMap<String, String> resmap = new HashMap<>();
+        resmap.put("message", "ok");
         return resmap;
     }
+
     @PostMapping("/api/setUserBan/user")
-    public Object setUserBan(HttpSession session, @RequestBody Map<String, String> reqmap){
+    public Object setUserBan(HttpSession session, @RequestBody Map<String, String> reqmap) {
         int id = Integer.parseInt(reqmap.get("id"));
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("id",id);
-        TSysUser tSysUser =  tSysUserMapper.selectOne(queryWrapper);
+        queryWrapper.eq("id", id);
+        TSysUser tSysUser = tSysUserMapper.selectOne(queryWrapper);
         tSysUser.setStatus(0);
         tSysUserMapper.updateById(tSysUser);
-        HashMap<String,String> resmap =  new HashMap<>();
-        resmap.put("message","ok");
+        HashMap<String, String> resmap = new HashMap<>();
+        resmap.put("message", "ok");
         return resmap;
     }
-
-
 
 
 }

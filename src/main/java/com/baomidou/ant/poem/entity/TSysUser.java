@@ -61,7 +61,4 @@ package com.baomidou.ant.poem.entity;
 
     private String picture;
 
-
-
-
 }

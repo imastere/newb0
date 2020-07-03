@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
+
 /**
  * <p>
  *
@@ -22,14 +24,14 @@ public class TTopics {
     private Integer id;
 
     private String owner;
-
+    @NotBlank
     private String title;
 
     private String avatar;
 
     private String cover;
 
-    private String status;
+    private int status;
 
     private Integer percent;
 
@@ -54,11 +56,11 @@ public class TTopics {
     @TableField("newUser")
     private Integer newUser;
 
-    private String start;
+    private Integer start;
 
     private Integer likenum;
 
-    private String message;
+    private Integer message;
 
     private String content;
 

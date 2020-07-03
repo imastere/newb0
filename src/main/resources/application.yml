@@ -14,3 +14,11 @@ spring:
     password: Zsd123456+
   thymeleaf:
     prefix: classpath:static/
+  logging:
+    file:
+      name: logger/spring-boot-logger.log
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+

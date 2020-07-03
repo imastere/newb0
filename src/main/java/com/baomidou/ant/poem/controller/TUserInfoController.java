@@ -1,12 +1,10 @@
 package com.baomidou.ant.poem.controller;
 
 
-import com.baomidou.ant.poem.entity.TPoemsBooks;
 import com.baomidou.ant.poem.entity.TUserInfo;
 import com.baomidou.ant.poem.mapper.TUserInfoMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,10 +16,7 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.HashMap;
-import java.util.UUID;
 
 /**
  * <p>
@@ -41,7 +36,6 @@ public class TUserInfoController {
         HashMap<Object, Object> map = new HashMap();
         if (session.getAttribute("userid") != null) {
             Integer userid = (Integer) session.getAttribute("userid");
-            System.out.println("userid" + userid);
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("userid", userid);
             TUserInfo tUserInfo = tUserInfoMapper.selectOne(queryWrapper);
@@ -59,11 +53,11 @@ public class TUserInfoController {
 
 
 
-
+    //上传头像
     @PostMapping("/accountsettings")
     public Object accountsettings(HttpSession session,@RequestParam(value = "file") MultipartFile file, HttpServletRequest request, Model m) {
         try {
-            System.out.println("上传图片");
+
             //2.根据时间戳创建新的文件名，这样即便是第二次上传相同名称的文件，也不会把第一次的文件覆盖了
             String fileName = System.currentTimeMillis() + file.getOriginalFilename();
             //3.通过req.getServletContext().getRealPath("") 获取当前项目的真实路径，然后拼接前面的文件名
@@ -91,7 +85,6 @@ public class TUserInfoController {
             e.printStackTrace();
             return "上传失败," + e.getMessage();
         }
-
         return "showImg";
     }
 

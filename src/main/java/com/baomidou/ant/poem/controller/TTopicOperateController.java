@@ -32,9 +32,6 @@ public class TTopicOperateController {
     @Resource
     TTopicOperateMapper tTopicOperateMapper;
 
-
-
-    //
     @GetMapping("/getTimeAxisList")
     public Object getmyTopicList(HttpServletRequest request) {
         String user = request.getParameter("user");
@@ -53,7 +50,9 @@ public class TTopicOperateController {
             QueryWrapper queryWrapper1 = new QueryWrapper();
             queryWrapper1.eq("id", ttoi.getTopicid());
             TTopics tTopic = tTopicsMapper.selectOne(queryWrapper1);
+            System.out.println(tTopic);
             Paper paperi = new Paper();
+
             paperi.setOperate(ttoi.getOperate());
             paperi.setTitle(tTopic.getTitle());
             paperi.set_id(tTopic.getId().toString());
@@ -80,9 +79,10 @@ public class TTopicOperateController {
 
     //点赞
     @PostMapping("/like_topic")
-    public Object likeTopic( @RequestBody Map<String, String> map){
-        String topicid = map.get("topic_id");
-        String username = map.get("username");
+    public Object likeTopic(HttpServletRequest request){
+
+        String topicid = request.getParameter("topic_id");
+        String username = request.getParameter("username");
 
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("id",topicid);
@@ -97,7 +97,16 @@ public class TTopicOperateController {
         operate.setCreattime(df.format(new Date()));
         tTopicOperateMapper.insert(operate);
         return "点赞成功";
+    }
 
+
+    //
+    @PostMapping("/likeArticle")
+    public Object likeArticle( @RequestBody Map<String, String> map){
+        String username = map.get("username");
+        String id = map.get("id");
+
+        return "。。";
     }
 
 
